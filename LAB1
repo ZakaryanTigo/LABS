@@ -1,0 +1,24 @@
+n, m = (int(i) for i in input().split())
+
+matrix = [[0 for _ in range(m)] for _ in range(n)]
+count = 0
+
+for k in range(n):
+    if k:
+        start = i
+    else:
+        start = 0
+    for i in range(start, m):
+        line = k
+        for j in range(i, -1, -1):
+            if line < n:
+                matrix[line][j] = count
+                count += 1
+                line += 1
+            else:
+                break
+
+for i in matrix:
+    for j in i:
+        print(j, end=' ')
+    print()
