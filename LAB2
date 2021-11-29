@@ -1,0 +1,84 @@
+#include <bits/stdc++.h>
+using namespace std;
+ 
+#define in_range(x,y,z) for (int x=y; x<z; x++)
+typedef long long ll;
+ 
+int find_subctr(string t, string s)
+{
+  const int p = 97;  // основание системы счисления для хеширования строк
+  // вычисляем степени числа P, чтобы ускорить процесс хеширования
+  vector<ll> p_pow (s.length());
+  p_pow[0] = 1;
+  for (size_t i=1; i<p_pow.size(); ++i)
+    p_pow[i] = p_pow[i-1] * p;
+  // вычисляем хеши всех префиксов строки S
+  vector<ll> h (s.length());
+  for (size_t i=0; i<s.length(); ++i)
+    {
+      h[i] = (s[i] - 't' + 1) * p_pow[i];
+      if (i)  h[i] += h[i-1];
+    }
+  // посчитаем хеш строки Т
+  ll h_t = 0;
+  for (size_t i=0; i<t.length(); ++i)
+    h_t += (t[i] - 't' + 1) * p_pow[i];
+  // сравниваем хеши строки T и подстрок S длины |T|
+  for (size_t i = 0; i + t.length() - 1 < s.length(); ++i)
+    {
+      ll cur_h = h[i+t.length()-1];
+      if (i)  cur_h -= h[i-1];
+      // если равенство выполняется хотя бы один раз, мы прекращаем поиск
+      if (cur_h == h_t * p_pow[i])
+        return int(i);
+    }
+  return -1;
+}
+ 
+int main()
+{
+  vector<string>T,S,C; // наборы строк T и S, а также набор образцов единичной длины C
+  int n;
+  cin >> n;
+  string tmp;
+  getline(cin,tmp);
+  in_range(i,0,n)
+    {
+      getline(cin,tmp);
+      if(tmp.length()==1) C.push_back(tmp);
+      T.push_back(tmp);
+    }
+  while(getline(cin,tmp))
+    {
+      S.push_back(tmp);
+    }
+  in_range(i,0,S.size())
+    {
+      string s=S[i];
+      if(s=="") continue; // отсекаем случай пустой строки
+      if(s.length()==1) // в случае строки единичной длины ищем вхождения образцов из С простым перебором
+        {
+          in_range(j,0,C.size())
+          {
+            string c=C[j];
+            if(s==c)
+              {
+                cout << s << "\n";
+                break;
+              }
+          }
+          continue;
+        }
+      in_range(j,0,n) // во всех остальных случаях ищем вхождения строк из Т, используя алгоритм Рабина-Карпа
+      {
+        string t=T[j];
+        int pos = find_subctr(t,s);
+        if(pos>=0)
+          {
+            cout << s << "\n";
+            break;
+          }
+      }
+    }
+  return 0;
+}
